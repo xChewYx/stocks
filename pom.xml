@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.3</version>
+		<relativePath/> 
+	</parent>
+	
+	<groupId>com.scott.stocks</groupId>
+	<artifactId>stock-data-aggregator</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>data-aggregator</name>
+	<description>Collect data from various APIs</description>
+	
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+	
+	<distributionManagement>
+		<repository>
+		    <id>local</id>
+		    <name>Local Repo</name>
+		    <url>file://${user.home}/workspace/local_mvn_repo</url>
+		</repository>
+	</distributionManagement> 
+	
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>	
+	</repositories>
+	
+	
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+   			<groupId>org.postgresql</groupId>
+   			<artifactId>postgresql</artifactId>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.github.polygon-io</groupId>
+		    <artifactId>client-jvm</artifactId>
+		    <version>v1.1.1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+	  <plugins>
+	 	<plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-dependency-plugin</artifactId>
+	       <executions>
+          		<execution>
+		            <id>copy-dependencies</id>
+		            <phase>package</phase>
+		            <goals>
+		              <goal>copy-dependencies</goal>
+		            </goals>
+		            <configuration>
+		              <outputDirectory>${project.build.directory}/lib</outputDirectory>
+		              <overWriteReleases>false</overWriteReleases>
+		              <overWriteSnapshots>true</overWriteSnapshots>
+		              <excludeTransitive>false</excludeTransitive>
+		            </configuration>
+          		</execution>
+        	</executions>
+	    </plugin>
+	    <plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-jar-plugin</artifactId>
+		    <configuration>
+		        <archive>
+		            <manifest>
+		                <addClasspath>true</addClasspath>
+		                <classpathPrefix>lib/</classpathPrefix>
+		                <mainClass>com.scott.stocks.dataaggregator.DataAggregatorApplication</mainClass>
+		            </manifest>
+		        </archive>
+		    </configuration>
+		</plugin>
+		<plugin>
+		  <groupId>com.spotify</groupId>
+		  <artifactId>dockerfile-maven-plugin</artifactId>
+		  <version>1.4.13</version>
+		  <executions>
+		    <execution>
+		      <id>default</id>
+		      <goals>
+		        <goal>build</goal>
+		        <goal>push</goal>
+		      </goals>
+		    </execution>
+		  </executions>
+		  <configuration>
+		    <repository>scottdirvin/stocker-aggregator</repository>
+		    <tag>${project.version}</tag>
+		    <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+		    <buildArgs>
+		      <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+		    </buildArgs>
+		  </configuration>
+		</plugin> 
+	  </plugins>
+	</build>
+</project>
